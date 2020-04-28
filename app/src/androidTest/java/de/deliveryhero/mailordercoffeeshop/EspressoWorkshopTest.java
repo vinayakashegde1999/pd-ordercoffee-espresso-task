@@ -13,6 +13,7 @@ import androidx.test.runner.AndroidJUnit4;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,36 +47,6 @@ public class EspressoWorkshopTest {
     private String orderName = numberOfEspressoShots + " Espresso shots";
     private String orderDetails = "Ingredients:\n" + numberOfEspressoShots + " shots of espresso\nChocolate\nSteamed Low fat";
 
-
-
-    public void closeScreen() {
-        //Assertion here to make sure that close button exists
-        ViewInteraction introductionPageCloseButton = onView((withId(R.id.close_button)));
-        introductionPageCloseButton.check(matches(isDisplayed()));
-
-
-        //Click the close button on introduction page
-        ViewInteraction appCompatImageButton = onView((withId(R.id.close_button)));
-        appCompatImageButton.perform(click());
-
-    }
-
-    public void placeOrder() {
-        onView(withId(R.id.more_espresso)).perform(click());
-        onView(withId(R.id.more_espresso)).perform(click());
-        onView(withId(R.id.chocolate)).perform(click());
-
-        //Select Low fat from Milk selection dropdown
-        onData(anything()).inAdapterView(withId(R.id.milk_type)).atPosition(2).perform();
-
-        // Click the Steamed radio button
-        onView(withText(milk_spacer)).perform(click());
-
-        //Since  Review Order button is located at the bottom and is not visible need to scroll the page.
-        onView(withId(R.id.review_order_button)).perform(scrollTo(), click());
-    }
-
-
     //Define Matcher to be used with items search
     private static Matcher<View> childAtPosition(
             final Matcher<View> parentMatcher, final int position) {
@@ -94,6 +65,38 @@ public class EspressoWorkshopTest {
                         view.equals(((ViewGroup) parent).getChildAt(position));
             }
         };
+    }
+
+    public void closeScreen() {
+        //Assertion here to make sure that close button exists
+        ViewInteraction introductionPageCloseButton = onView((withId(R.id.close_button)));
+        introductionPageCloseButton.check(matches(isDisplayed()));
+
+
+        //Click the close button on introduction page
+        ViewInteraction appCompatImageButton = onView((withId(R.id.close_button)));
+        appCompatImageButton.perform(click());
+
+    }
+
+    public void addEspresso(int numberOfEspressoShots) {
+        for (int i = 0; i < numberOfEspressoShots; i++) {
+            onView(withId(R.id.more_espresso)).perform(click());
+        }
+    }
+
+    public void placeOrder() {
+        addEspresso(numberOfEspressoShots);
+        onView(withId(R.id.chocolate)).perform(click());
+
+        //Select Low fat from Milk selection dropdown
+        onData(anything()).inAdapterView(withId(R.id.milk_type)).atPosition(2).perform();
+
+        // Click the Steamed radio button
+        onView(withText(milk_spacer)).perform(click());
+
+        //Since  Review Order button is located at the bottom and is not visible need to scroll the page.
+        onView(withId(R.id.review_order_button)).perform(scrollTo(), click());
     }
 
     public void validateOrder() {
@@ -125,9 +128,13 @@ public class EspressoWorkshopTest {
         submitOrder.perform(scrollTo(), click());
     }
 
+    @Before
+    public void performMandatoryStepsforTests() {
+        closeScreen();
+    }
+
     @Test
     public void espressoWorkShopTask1() {
-        closeScreen();
         placeOrder();
         validateOrder();
         submitOrder();
